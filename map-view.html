@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  html,body,#map{margin:0;height:100%;width:100%;background:#EDEFE6}
+  .leaflet-container{font-family:"DM Sans",system-ui,sans-serif;background:#EDEFE6}
+  .leaflet-control-attribution{font-size:9px;background:rgba(251,250,245,.82)}
+  .leaflet-tile-pane{filter:saturate(.62) contrast(.96) brightness(1.04)}
+  .pricepin{background:none;border:0}
+  .pricepin .pill{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:99px 99px 99px 4px;
+    background:#5C7A3F;color:#fff;font:700 12.5px/1 "DM Sans",sans-serif;white-space:nowrap;
+    box-shadow:0 6px 14px rgba(27,42,30,.28);transform:translate(-6px,-100%);cursor:pointer}
+  .pricepin.on .pill{background:#1B2A1E;color:#F2C744}
+  .pricepin .pill small{font:500 9.5px/1 "DM Mono",monospace;opacity:.75}
+  .mepin{background:none;border:0}
+  .mepin i{display:block;width:16px;height:16px;border-radius:50%;background:#2A6BD8;border:3px solid #fff;box-shadow:0 0 0 7px rgba(42,107,216,.18)}
+  .leaflet-bar a{color:#1B2A1E}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const mini = q.get('mini') === '1';
+  const sel = parseInt(q.get('sel') || '0', 10);
+
+  const SHOPS = [
+    { name: 'Furn Al Sabaya', usd: '$3.50', win: '7:30–8:30 pm', ll: [33.88690, 35.51940] },
+    { name: 'Abou Hassan Halawiyat', usd: '$5.00', win: '8:00–9:00 pm', ll: [33.88925, 35.52305] },
+    { name: 'Souk el Tayeb stall', usd: '$4.00', win: '9:00–10:30 am', ll: [33.89355, 35.51655] },
+    { name: 'Kalei Coffee', usd: '$2.50', win: '6:45–7:15 pm', ll: [33.88478, 35.51565] }
+  ];
+  const ME = [33.88790, 35.51850];
+
+  function parseCsv(text){const rows=[[]];let cell='',q=false;for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'&&text[i+1]==='"'){cell+='"';i++;}else if(c==='"'){q=false;}else cell+=c;}
+    else if(c==='"')q=true;else if(c===','){rows[rows.length-1].push(cell);cell='';}
+    else if(c==='\n'){rows[rows.length-1].push(cell);cell='';rows.push([]);}
+    else if(c!=='\r')cell+=c;}
+    rows[rows.length-1].push(cell);return rows.filter(r=>r.some(v=>String(v).trim()!==''));}
+
+  function fromSheet(text){
+    const raw=parseCsv(text);if(raw.length<2)return null;
+    const head=raw[0].map(h=>h.trim().toLowerCase());
+    const at=(r,k)=>{const i=head.indexOf(k);return i<0?'':String(r[i]||'').trim();};
+    const out=raw.slice(1).map(r=>({name:at(r,'vendor'),usd:'$'+(parseFloat(at(r,'price_usd'))||0).toFixed(2),
+      win:at(r,'pickup_window'),ll:[parseFloat(at(r,'lat')),parseFloat(at(r,'lng'))]}))
+      .filter(s=>s.ll[0]&&s.ll[1]);
+    return out.length?out:null;
+  }
+
+  const map = L.map('map', {
+    zoomControl: !mini, attributionControl: true,
+    dragging: !mini, scrollWheelZoom: !mini, doubleClickZoom: !mini, touchZoom: !mini,
+    keyboard: !mini, zoomSnap: 0.25
+  });
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19
+  }).addTo(map);
+
+  let pins = [];
+  function draw(shops) {
+    pins.forEach(p => map.removeLayer(p));
+    pins = [];
+    shops.forEach((s, i) => {
+    const m = L.marker(s.ll, {
+      icon: L.divIcon({
+        className: 'pricepin' + (i === sel ? ' on' : ''),
+        html: '<div class="pill">' + s.usd + ' <small>' + s.win + '</small></div>',
+        iconSize: [0, 0]
+      }),
+      zIndexOffset: i === sel ? 500 : 0
+    }).addTo(map);
+    m.on('click', () => parent.postMessage({ type: 'loqma:select', i: i }, '*'));
+      pins.push(m);
+    });
+    if (!shops.length) return;
+    if (mini) map.setView(shops[0].ll, 16);
+    else map.fitBounds(L.latLngBounds(shops.map(s => s.ll).concat([ME])), { padding: [90, 60] });
+    if (shops !== SHOPS) { const next = shops.slice(); SHOPS.length = 0; next.forEach(s => SHOPS.push(s)); }
+  }
+
+  draw(mini ? [SHOPS[sel]] : SHOPS);
+
+  const csv = q.get('csv');
+  if (csv) {
+    fetch(csv).then(r => r.text()).then(t => {
+      const rows = fromSheet(t);
+      if (rows) draw(mini ? [rows[sel] || rows[0]] : rows);
+    }).catch(() => {});
+  }
+
+  L.marker(ME, { icon: L.divIcon({ className: 'mepin', html: '<i></i>', iconSize: [16, 16] }) }).addTo(map);
+
+  window.addEventListener('message', e => {
+    const d = e.data || {};
+    if (d.type !== 'loqma:focus' || !SHOPS[d.i]) return;
+    pins.forEach((m, i) => {
+      const el = m.getElement();
+      if (el) el.classList.toggle('on', i === d.i);
+    });
+    map.panTo(SHOPS[d.i].ll, { animate: true });
+  });
+</script>
+</body>
+</html>

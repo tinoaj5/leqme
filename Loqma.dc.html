@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" /><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Kufi+Arabic:wght@400;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" /><style>body{margin:0;background:#EDEFE6;font-family:"DM Sans",system-ui,sans-serif;color:#1B2A1E}a{color:#5C7A3F}a:hover{color:#3F5A28}*{-webkit-font-smoothing:antialiased}@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}</style></helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;gap:44px;padding:44px 40px 80px;justify-content:center;align-items:flex-start;box-sizing:border-box">
+
+<div style="width:300px;flex:none;display:flex;flex-direction:column;gap:22px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font:600 46px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.01em">Loqma</div>
+<div style="font:400 20px/1 'Noto Kufi Arabic',sans-serif;color:#5A6352">لقمة</div>
+</div>
+<p style="margin:0;font:400 14px/1.55 'DM Sans',sans-serif;color:#47513F;text-wrap:pretty">Rescue surplus food from Lebanese furn, cafés and mini-markets before closing. Dual-priced in fresh dollars and lira, cash on pickup, no card needed.</p>
+<div style="height:1px;background:rgba(27,42,30,.12)"></div>
+<div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.14em;color:#5A6352;text-transform:uppercase">Screens</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<sc-for list="{{ nav }}" as="n" hint-placeholder-count="7">
+<div onClick="{{ n.go }}" style="{{ n.style }}">
+<span style="font:500 13px/1 'DM Sans',sans-serif">{{ n.label }}</span>
+<span style="font:400 11px/1 'DM Mono',monospace;opacity:.55">{{ n.hint }}</span>
+</div>
+</sc-for>
+</div>
+<div style="height:1px;background:rgba(27,42,30,.12)"></div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+<div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.14em;color:#5A6352;text-transform:uppercase">Data source</div>
+<div style="{{ sheetPill }}">{{ sheetLabel }}</div>
+</div>
+<input value="{{ urlDraft }}" onChange="{{ onUrl }}" placeholder="Paste Google Sheet link" style="height:38px;border-radius:10px;border:1px solid rgba(27,42,30,.16);background:#FBFAF5;padding:0 11px;font:400 12px/1 'DM Sans',sans-serif;color:#1B2A1E;outline:none;min-width:0" />
+<div style="display:flex;gap:7px">
+<div onClick="{{ connect }}" style="flex:1;padding:10px 12px;border-radius:10px;background:#5C7A3F;color:#fff;text-align:center;cursor:pointer;font:500 12.5px/1 'DM Sans',sans-serif">Connect</div>
+<div onClick="{{ refresh }}" style="padding:10px 12px;border-radius:10px;border:1px solid rgba(27,42,30,.16);cursor:pointer;font:500 12.5px/1 'DM Sans',sans-serif;color:#47513F">Sync</div>
+<div onClick="{{ useDemo }}" style="padding:10px 12px;border-radius:10px;border:1px solid rgba(27,42,30,.16);cursor:pointer;font:500 12.5px/1 'DM Sans',sans-serif;color:#47513F">Demo</div>
+</div>
+<div style="font:400 11px/1.45 'DM Sans',sans-serif;color:#47513F">{{ sheetMeta }}</div>
+<input value="{{ writeUrl }}" onChange="{{ onWriteUrl }}" placeholder="Apps Script URL (write-back, optional)" style="height:38px;border-radius:10px;border:1px solid rgba(27,42,30,.16);background:#FBFAF5;padding:0 11px;font:400 12px/1 'DM Sans',sans-serif;color:#1B2A1E;outline:none;min-width:0" />
+<div style="font:400 11px/1.45 'DM Sans',sans-serif;color:#5A6352">Tab <b>Listings</b> · columns: vendor, title, title_ar, distance, pickup_window, bags_left, price_usd, was_usd, items (a;b;c), lat, lng, photo_note. <a href="loqma-listings-template.csv" download="">Download template CSV</a></div>
+</div>
+<p style="margin:0;font:400 12px/1.5 'DM Sans',sans-serif;color:#5A6352">Everything is tappable — filter, reserve, pay, then show the pickup code. Listings, prices and map pins all come from the connected sheet.</p>
+</div>
+
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ 402 }}" height="{{ 874 }}" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:#FBFAF5;position:relative;overflow:hidden">
+
+<sc-if value="{{ isOnboard }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 26px 46px;background:#1B2A1E;color:#FBFAF5;position:relative">
+<div style="position:absolute;inset:0;background:repeating-linear-gradient(38deg,rgba(92,122,63,.28) 0 3px,rgba(196,85,43,0) 3px 13px)"></div>
+<div style="position:absolute;top:96px;left:26px;right:26px;display:flex;flex-direction:column;gap:10px">
+<div style="font:600 66px/.92 'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em">Loqma</div>
+<div style="font:400 22px/1 'Noto Kufi Arabic',sans-serif;color:#F2C744">لقمة</div>
+</div>
+<div style="position:relative;display:flex;flex-direction:column;gap:20px">
+<div style="font:600 30px/1.15 'Plus Jakarta Sans',sans-serif;text-wrap:pretty">Nothing good<br />should go to waste.</div>
+<div style="font:400 13.5px/1.5 'DM Sans',sans-serif;color:rgba(251,250,245,.66)">Where are you picking up today?</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ hoods }}" as="h" hint-placeholder-count="6">
+<div onClick="{{ h.pick }}" style="{{ h.style }}">{{ h.name }}</div>
+</sc-for>
+</div>
+<div onClick="{{ goHome }}" style="margin-top:6px;height:56px;border-radius:16px;background:#5C7A3F;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;font:700 16px/1 'DM Sans',sans-serif">Start rescuing<span style="font:400 15px/1 'Noto Kufi Arabic',sans-serif;opacity:.8">يلا</span></div>
+<div style="font:400 11.5px/1.4 'DM Sans',sans-serif;color:rgba(251,250,245,.4);text-align:center">Pay cash at the counter · card optional</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;overflow:auto;padding:64px 0 96px">
+<div style="padding:0 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+<div style="display:flex;flex-direction:column;gap:3px">
+<div style="display:flex;align-items:center;gap:7px">
+<div style="font:400 11px/1 'DM Mono',monospace;letter-spacing:.12em;color:#5A6352;text-transform:uppercase">{{ hood }} · 6:40 pm</div>
+<sc-if value="{{ isLive }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:4px;padding:3px 7px;border-radius:99px;background:rgba(92,122,63,.14);font:500 9px/1 'DM Mono',monospace;color:#3F5A28;letter-spacing:.08em">LIVE</div></sc-if>
+</div>
+<div style="font:600 30px/1.05 'Plus Jakarta Sans',sans-serif">Ahla w sahla, Rami</div>
+<sc-if value="{{ showArabic }}" hint-placeholder-val="{{ true }}"><div style="font:400 13px/1 'Noto Kufi Arabic',sans-serif;color:#5A6352">أهلا وسهلا</div></sc-if>
+</div>
+<div style="display:flex;align-items:center;gap:9px;flex:none">
+<div style="display:flex;padding:3px;border-radius:99px;background:#F1F3E9;border:1px solid rgba(27,42,30,.09)">
+<div onClick="{{ setEn }}" style="{{ enStyle }}">EN</div>
+<div onClick="{{ setAr }}" style="{{ arStyle }}">ع</div>
+</div>
+<div style="width:42px;height:42px;flex:none;border-radius:50%;background:#1B2A1E;color:#F2C744;display:flex;align-items:center;justify-content:center;font:500 14px/1 'DM Mono',monospace">RH</div>
+</div>
+</div>
+
+<div style="margin:18px 20px 0;height:46px;border-radius:14px;background:#fff;border:1px solid rgba(27,42,30,.09);display:flex;align-items:center;gap:10px;padding:0 14px">
+<div style="width:9px;height:9px;border-radius:50%;border:2px solid #5A6352"></div>
+<div style="font:400 14px/1 'DM Sans',sans-serif;color:#6F7A68">Search furn, cafés, markets…</div>
+</div>
+
+<div style="margin-top:16px;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="5">
+<div onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.label }}</div>
+</sc-for>
+</div>
+
+<sc-if value="{{ showBanner }}" hint-placeholder-val="{{ true }}">
+<div style="margin:20px 20px 0;padding:16px 18px;border-radius:18px;background:#1B2A1E;color:#FBFAF5;display:flex;align-items:center;gap:14px">
+<div style="font:600 34px/1 'Plus Jakarta Sans',sans-serif;color:#F2C744">14</div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<div style="font:500 13px/1.25 'DM Sans',sans-serif">loqmas rescued in Achrafieh today</div>
+<div style="font:400 11.5px/1.25 'DM Sans',sans-serif;color:rgba(251,250,245,.55)">≈ 21 kg saved from the bin</div>
+</div>
+</div>
+</sc-if>
+
+<div style="margin:26px 20px 12px;display:flex;align-items:baseline;justify-content:space-between">
+<div style="font:600 21px/1 'Plus Jakarta Sans',sans-serif">Closing soon near you</div>
+<div style="font:400 11px/1 'DM Mono',monospace;color:#5C7A3F">{{ bagCount }}</div>
+</div>
+
+<div style="padding:0 20px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ bags }}" as="b" hint-placeholder-count="4">
+<div onClick="{{ b.open }}" style="background:#fff;border:1px solid rgba(27,42,30,.09);border-radius:20px;padding:11px;display:flex;gap:13px;cursor:pointer;position:relative">
+<div style="width:96px;height:96px;flex:none;border-radius:14px;background:repeating-linear-gradient(45deg,#E3E7D9 0 5px,#F1F3E9 5px 11px);display:flex;align-items:flex-end;padding:7px;box-sizing:border-box">
+<div style="font:400 8px/1.2 'DM Mono',monospace;color:#5A6352">{{ b.ph }}</div>
+</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:2px">
+<div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.06em;color:#5A6352;text-transform:uppercase">{{ b.vendor }} · {{ b.dist }}</div>
+<div style="font:600 19px/1.1 'Plus Jakarta Sans',sans-serif">{{ b.title }}</div>
+<div style="font:400 12px/1.3 'DM Sans',sans-serif;color:#47513F">Pickup {{ b.window }}</div>
+<div style="margin-top:3px;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap">
+<span style="font:700 17px/1 'DM Sans',sans-serif;color:#5C7A3F">{{ b.usd }}</span>
+<span style="font:400 12px/1 'DM Sans',sans-serif;color:#6F7A68;text-decoration:line-through">{{ b.was }}</span>
+<span style="font:400 11px/1 'DM Mono',monospace;color:#6B7A57">{{ b.lbp }}</span>
+</div>
+</div>
+<div style="position:absolute;top:11px;right:11px;padding:4px 8px;border-radius:8px;background:#F1F3E9;font:500 10px/1 'DM Mono',monospace;color:#3F5A28">{{ b.left }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMap }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;position:relative;overflow:hidden;background:#E3E7D9">
+<iframe data-big-map="1" src="{{ mapSrc }}" title="Pickups near you" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
+<div style="position:absolute;top:60px;left:16px;right:16px;display:flex;gap:8px;pointer-events:none">
+<div style="flex:1;height:46px;border-radius:14px;background:rgba(251,250,245,.95);border:1px solid rgba(27,42,30,.1);display:flex;align-items:center;padding:0 14px;font:400 13px/1 'DM Sans',sans-serif;color:#47513F;box-shadow:0 6px 18px rgba(27,42,30,.10)">Achrafieh · within 2 km · 4 pickups</div>
+<div style="width:46px;height:46px;border-radius:14px;background:rgba(251,250,245,.95);border:1px solid rgba(27,42,30,.1);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(27,42,30,.10)">
+<div style="width:12px;height:12px;border-radius:50%;border:3px solid #5C7A3F"></div>
+</div>
+</div>
+<div style="position:absolute;left:16px;right:16px;bottom:98px;background:#fff;border-radius:22px;border:1px solid rgba(27,42,30,.09);padding:16px;display:flex;gap:14px;box-shadow:0 18px 40px rgba(27,42,30,.18)">
+<div style="width:70px;height:70px;flex:none;border-radius:12px;background:repeating-linear-gradient(45deg,#E3E7D9 0 5px,#F1F3E9 5px 11px)"></div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+<div style="font:500 10.5px/1 'DM Mono',monospace;letter-spacing:.06em;color:#5A6352;text-transform:uppercase">{{ sel.vendor }} · {{ sel.dist }}</div>
+<div style="font:600 19px/1.1 'Plus Jakarta Sans',sans-serif">{{ sel.title }}</div>
+<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+<span style="font:700 16px/1 'DM Sans',sans-serif;color:#5C7A3F">{{ sel.usd }}</span>
+<span style="font:400 11px/1 'DM Mono',monospace;color:#6B7A57">{{ sel.lbp }}</span>
+</div>
+</div>
+<div style="align-self:center;display:flex;flex-direction:column;gap:6px">
+<div onClick="{{ goBag }}" style="padding:10px 15px;border-radius:12px;background:#1B2A1E;color:#FBFAF5;font:500 13px/1 'DM Sans',sans-serif;cursor:pointer;text-align:center">View</div>
+<a href="{{ directions }}" target="_blank" rel="noopener" style="padding:9px 15px;border-radius:12px;border:1px solid rgba(27,42,30,.14);color:#47513F;font:500 12px/1 'DM Sans',sans-serif;text-align:center;text-decoration:none">Directions</a>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBag }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding-bottom:120px">
+<div style="height:250px;background:repeating-linear-gradient(45deg,#E3E7D9 0 6px,#F1F3E9 6px 13px);position:relative;display:flex;align-items:flex-end;padding:16px">
+<div onClick="{{ goHome }}" style="position:absolute;top:62px;left:16px;width:38px;height:38px;border-radius:50%;background:rgba(251,250,245,.92);display:flex;align-items:center;justify-content:center;cursor:pointer;font:500 16px/1 'DM Sans',sans-serif">‹</div>
+<div onClick="{{ toggleFav }}" style="{{ favStyle }}">♥</div>
+<div style="font:400 9px/1.2 'DM Mono',monospace;color:#5A6352">[ vendor photo — drop image here ]</div>
+</div>
+<div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;flex-direction:column;gap:5px">
+<div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.08em;color:#5A6352;text-transform:uppercase">{{ sel.vendor }} · {{ sel.dist }} · ★ 4.8</div>
+<div style="font:600 32px/1.05 'Plus Jakarta Sans',sans-serif">{{ sel.title }}</div>
+<sc-if value="{{ showArabic }}" hint-placeholder-val="{{ true }}"><div style="font:400 13px/1.4 'Noto Kufi Arabic',sans-serif;color:#5A6352">{{ sel.ar }}</div></sc-if>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;background:#fff;border:1px solid rgba(27,42,30,.09);border-radius:16px;padding:13px">
+<div style="font:400 10.5px/1 'DM Mono',monospace;color:#5A6352;text-transform:uppercase;letter-spacing:.08em">Pickup window</div>
+<div style="margin-top:6px;font:500 15px/1.2 'DM Sans',sans-serif">{{ sel.window }}</div>
+</div>
+<div style="flex:1;background:#fff;border:1px solid rgba(27,42,30,.09);border-radius:16px;padding:13px">
+<div style="font:400 10.5px/1 'DM Mono',monospace;color:#5A6352;text-transform:uppercase;letter-spacing:.08em">Bags left</div>
+<div style="margin-top:6px;font:500 15px/1.2 'DM Sans',sans-serif">{{ sel.left }}</div>
+</div>
+</div>
+<div style="background:#F1F3E9;border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:9px">
+<div style="font:500 12px/1 'DM Sans',sans-serif;color:#47513F">Usually inside — it's a surprise</div>
+<div style="display:flex;flex-wrap:wrap;gap:7px">
+<sc-for list="{{ sel.items }}" as="it" hint-placeholder-count="4">
+<div style="padding:7px 11px;border-radius:9px;background:#fff;font:400 12px/1 'DM Sans',sans-serif;color:#1B2A1E">{{ it }}</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 0">
+<div style="font:500 13px/1 'DM Sans',sans-serif;color:#47513F">How many bags?</div>
+<div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid rgba(27,42,30,.09);border-radius:12px;padding:7px 13px">
+<div onClick="{{ dec }}" style="cursor:pointer;font:500 18px/1 'DM Sans',sans-serif;color:#5A6352;width:16px;text-align:center">−</div>
+<div style="font:500 16px/1 'DM Mono',monospace;min-width:14px;text-align:center">{{ qty }}</div>
+<div onClick="{{ inc }}" style="cursor:pointer;font:500 18px/1 'DM Sans',sans-serif;color:#5C7A3F;width:16px;text-align:center">+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;padding-top:2px">
+<div style="font:500 11px/1 'DM Mono',monospace;color:#5A6352;text-transform:uppercase;letter-spacing:.08em">Address</div>
+<div style="font:400 13.5px/1.5 'DM Sans',sans-serif;color:#47513F">Rue Huvelin, near Sassine · walk 5 min<br />Generator hours 6–10 pm, ring the bell if dark</div>
+<div style="margin-top:6px;border-radius:16px;overflow:hidden;border:1px solid rgba(27,42,30,.09);background:#E3E7D9;position:relative">
+<iframe src="{{ miniSrc }}" title="Shop location" style="width:100%;height:156px;border:0;display:block"></iframe>
+</div>
+<a href="{{ directions }}" target="_blank" rel="noopener" style="align-self:flex-start;padding:11px 16px;border-radius:12px;background:#F1F3E9;border:1px solid rgba(27,42,30,.1);color:#1B2A1E;font:500 13px/1 'DM Sans',sans-serif;text-decoration:none">Open directions ↗</a>
+</div>
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 20px 34px;background:rgba(251,250,245,.96);border-top:1px solid rgba(27,42,30,.09);display:flex;align-items:center;gap:14px">
+<div style="display:flex;flex-direction:column;gap:2px">
+<div style="font:700 22px/1 'DM Sans',sans-serif;color:#1B2A1E">{{ totUsd }}</div>
+<div style="font:400 11px/1 'DM Mono',monospace;color:#6B7A57">{{ totLbp }}</div>
+</div>
+<div onClick="{{ goCheckout }}" style="flex:1;height:54px;border-radius:15px;background:#5C7A3F;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font:700 16px/1 'DM Sans',sans-serif">Reserve</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCheckout }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding:64px 20px 130px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:12px">
+<div onClick="{{ goBag }}" style="width:36px;height:36px;border-radius:50%;background:#F1F3E9;display:flex;align-items:center;justify-content:center;cursor:pointer;font:500 16px/1 'DM Sans',sans-serif">‹</div>
+<div style="font:600 26px/1 'Plus Jakarta Sans',sans-serif">Confirm pickup</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(27,42,30,.09);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 13.5px/1.3 'DM Sans',sans-serif;color:#47513F">{{ qty }} × {{ sel.title }}</span><span style="font:500 13.5px/1.3 'DM Sans',sans-serif">{{ totUsd }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 13.5px/1.3 'DM Sans',sans-serif;color:#47513F">Service (goes to the shop)</span><span style="font:500 13.5px/1.3 'DM Sans',sans-serif">$0.00</span></div>
+<div style="height:1px;background:rgba(27,42,30,.1)"></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font:500 14px/1 'DM Sans',sans-serif">Total</span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font:700 20px/1 'DM Sans',sans-serif;color:#5C7A3F">{{ totUsd }}</span><span style="font:400 11px/1 'DM Mono',monospace;color:#6B7A57">{{ totLbp }}</span></span></div>
+<div style="font:400 11px/1.4 'DM Sans',sans-serif;color:#6F7A68">Rate today 1 USD = 89,500 L.L · locked for 30 min</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="font:500 11px/1 'DM Mono',monospace;color:#5A6352;text-transform:uppercase;letter-spacing:.08em">How you'll pay</div>
+<sc-for list="{{ pays }}" as="p" hint-placeholder-count="3">
+<div onClick="{{ p.pick }}" style="{{ p.style }}">
+<div style="display:flex;flex-direction:column;gap:3px">
+<div style="font:500 14px/1.2 'DM Sans',sans-serif">{{ p.label }}</div>
+<div style="font:400 11.5px/1.3 'DM Sans',sans-serif;color:#5A6352">{{ p.note }}</div>
+</div>
+<div style="{{ p.dot }}"></div>
+</div>
+</sc-for>
+</div>
+<div style="background:#F1F3E9;border-radius:16px;padding:14px;font:400 12.5px/1.5 'DM Sans',sans-serif;color:#47513F">We'll send the pickup code on WhatsApp too, in case the app is offline.</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 20px 34px;background:rgba(251,250,245,.96);border-top:1px solid rgba(27,42,30,.09)">
+<div onClick="{{ goCode }}" style="height:56px;border-radius:16px;background:#1B2A1E;color:#FBFAF5;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;font:700 16px/1 'DM Sans',sans-serif">Reserve {{ qty }} bag<span style="font:400 15px/1 'Noto Kufi Arabic',sans-serif;color:#F2C744">تم</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCode }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding:74px 20px 110px;background:#1B2A1E;color:#FBFAF5;display:flex;flex-direction:column;gap:20px;align-items:center;text-align:center">
+<div style="display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:99px;background:rgba(242,199,68,.16);color:#F2C744">
+<div style="width:7px;height:7px;border-radius:50%;background:#F2C744;animation:pulseDot 1.6s ease-in-out infinite"></div>
+<span style="font:500 12px/1 'DM Mono',monospace">Pick up in {{ countdown }}</span>
+</div>
+<div style="font:600 27px/1.2 'Plus Jakarta Sans',sans-serif;max-width:280px;text-wrap:pretty">Show this at the counter of {{ sel.vendor }}</div>
+<div style="width:100%;background:#FBFAF5;color:#1B2A1E;border-radius:22px;padding:26px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+<div style="font:400 11px/1 'DM Mono',monospace;letter-spacing:.14em;color:#5A6352;text-transform:uppercase">Pickup code</div>
+<div style="font:500 46px/1 'DM Mono',monospace;letter-spacing:.06em;color:#5C7A3F">{{ code }}</div>
+<div style="display:flex;gap:5px">
+<sc-for list="{{ codeBars }}" as="cb" hint-placeholder-count="9">
+<div style="{{ cb }}"></div>
+</sc-for>
+</div>
+<sc-if value="{{ showArabic }}" hint-placeholder-val="{{ true }}"><div style="font:400 13px/1 'Noto Kufi Arabic',sans-serif;color:#47513F">رمز الاستلام</div></sc-if>
+</div>
+<div style="width:100%;display:flex;flex-direction:column;gap:9px;text-align:left">
+<div style="display:flex;justify-content:space-between;gap:10px;font:400 13px/1.4 'DM Sans',sans-serif"><span style="color:rgba(251,250,245,.55)">Pay at counter</span><span style="font-weight:500">{{ totUsd }} or {{ totLbp }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px;font:400 13px/1.4 'DM Sans',sans-serif"><span style="color:rgba(251,250,245,.55)">Window</span><span style="font-weight:500">{{ sel.window }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px;font:400 13px/1.4 'DM Sans',sans-serif"><span style="color:rgba(251,250,245,.55)">Address</span><span style="font-weight:500">Rue Huvelin, Achrafieh</span></div>
+</div>
+<div style="width:100%;border-radius:18px;overflow:hidden;border:1px solid rgba(251,250,245,.16)">
+<iframe src="{{ miniSrc }}" title="Shop location" style="width:100%;height:140px;border:0;display:block"></iframe>
+</div>
+<div style="width:100%;display:flex;gap:10px">
+<div onClick="{{ goImpact }}" style="flex:1;height:54px;border-radius:15px;background:#5C7A3F;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font:700 15.5px/1 'DM Sans',sans-serif">I picked it up</div>
+<a href="{{ directions }}" target="_blank" rel="noopener" style="width:120px;height:54px;border-radius:15px;border:1px solid rgba(251,250,245,.22);color:#FBFAF5;display:flex;align-items:center;justify-content:center;font:500 13.5px/1 'DM Sans',sans-serif;text-decoration:none">Directions</a>
+</div>
+<div onClick="{{ goHome }}" style="font:500 13px/1 'DM Sans',sans-serif;color:rgba(251,250,245,.5);cursor:pointer;text-decoration:underline">Can't make it — release my bag</div>
+<div style="font:400 10.5px/1.4 'DM Mono',monospace;color:rgba(251,250,245,.42)">{{ writeNote }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isImpact }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding:64px 20px 100px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:13px">
+<div style="width:52px;height:52px;border-radius:50%;background:#1B2A1E;color:#F2C744;display:flex;align-items:center;justify-content:center;font:500 16px/1 'DM Mono',monospace">RH</div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<div style="font:600 25px/1 'Plus Jakarta Sans',sans-serif">Rami Haddad</div>
+<div style="font:400 11.5px/1 'DM Mono',monospace;color:#5A6352">Rescuing since Feb 2026 · Achrafieh</div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+<sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+<div style="background:#fff;border:1px solid rgba(27,42,30,.09);border-radius:18px;padding:15px;display:flex;flex-direction:column;gap:4px">
+<div style="font:600 30px/1 'Plus Jakarta Sans',sans-serif;color:#5C7A3F">{{ s.v }}</div>
+<div style="font:400 12px/1.3 'DM Sans',sans-serif;color:#47513F">{{ s.l }}</div>
+</div>
+</sc-for>
+</div>
+<div style="background:#1B2A1E;color:#FBFAF5;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:8px">
+<div style="font:600 20px/1.15 'Plus Jakarta Sans',sans-serif">Give a loqma forward</div>
+<div style="font:400 12.5px/1.5 'DM Sans',sans-serif;color:rgba(251,250,245,.6)">Pre-pay a bag and a family nearby collects it, no questions asked.</div>
+<div style="margin-top:6px;align-self:flex-start;padding:11px 16px;border-radius:12px;background:#F2C744;color:#1B2A1E;font:700 13px/1 'DM Sans',sans-serif;cursor:pointer">Donate $3.50</div>
+</div>
+<div style="font:500 11px/1 'DM Mono',monospace;color:#5A6352;text-transform:uppercase;letter-spacing:.08em;margin-top:4px">Past rescues</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<sc-for list="{{ past }}" as="r" hint-placeholder-count="3">
+<div style="background:#fff;border:1px solid rgba(27,42,30,.09);border-radius:16px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+<div style="display:flex;flex-direction:column;gap:3px">
+<div style="font:500 13.5px/1.2 'DM Sans',sans-serif">{{ r.t }}</div>
+<div style="font:400 11px/1 'DM Mono',monospace;color:#5A6352">{{ r.d }}</div>
+</div>
+<div style="font:500 13px/1 'DM Sans',sans-serif;color:#6B7A57">{{ r.p }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:0;right:0;bottom:0;height:82px;background:rgba(251,250,245,.97);border-top:1px solid rgba(27,42,30,.09);display:flex;align-items:flex-start;padding-top:12px">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+<div onClick="{{ t.go }}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
+<div style="{{ t.dot }}"></div>
+<div style="{{ t.label }}">{{ t.name }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showArabic&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Localization&quot;},&quot;showImpactBanner&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Home&quot;}}">
+class Component extends DCLogic {
+  state = { screen: 'onboard', hood: 'Achrafieh', cat: 'All', sel: 0, qty: 1, pay: 'cash', fav: false, secs: 82 * 60,
+            sheetUrl: '', urlDraft: '', writeUrl: '', rows: null, status: 'demo', lastSync: '', err: '', writeNote: '' };
+
+  csvUrl(u) {
+    const m = String(u).match(/\/spreadsheets\/d\/([\w-]+)/);
+    if (m) return 'https://docs.google.com/spreadsheets/d/' + m[1] + '/gviz/tq?tqx=out:csv&sheet=Listings';
+    return u;
+  }
+
+  parseCsv(text) {
+    const rows = [[]]; let cell = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') q = false;
+        else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ',') { rows[rows.length - 1].push(cell); cell = ''; }
+      else if (c === '\n') { rows[rows.length - 1].push(cell); cell = ''; rows.push([]); }
+      else if (c !== '\r') cell += c;
+    }
+    rows[rows.length - 1].push(cell);
+    return rows.filter(r => r.some(v => String(v).trim() !== ''));
+  }
+
+  mapRows(raw) {
+    if (raw.length < 2) return [];
+    const head = raw[0].map(h => h.trim().toLowerCase());
+    const at = (r, k) => { const i = head.indexOf(k); return i < 0 ? '' : String(r[i] || '').trim(); };
+    return raw.slice(1).map(r => {
+      const n = parseFloat(at(r, 'price_usd')) || 0;
+      const was = parseFloat(at(r, 'was_usd')) || 0;
+      return {
+        vendor: at(r, 'vendor') || 'Shop', ar: at(r, 'title_ar'),
+        dist: at(r, 'distance') || '—', title: at(r, 'title') || 'Surprise bag',
+        window: at(r, 'pickup_window') || 'today', left: (at(r, 'bags_left') || '1') + ' left',
+        usd: '$' + n.toFixed(2), was: was ? '$' + was.toFixed(0) : '',
+        lbp: this.money(n).lbp, ph: '[ ' + (at(r, 'photo_note') || 'vendor photo') + ' ]',
+        items: (at(r, 'items') || '').split(';').map(s => s.trim()).filter(Boolean),
+        lat: parseFloat(at(r, 'lat')), lng: parseFloat(at(r, 'lng'))
+      };
+    }).filter(b => b.title);
+  }
+
+  loadSheet(url) {
+    if (!url) return;
+    this.setState({ status: 'loading', err: '' });
+    fetch(this.csvUrl(url))
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(t => {
+        const rows = this.mapRows(this.parseCsv(t));
+        if (!rows.length) throw new Error('No rows found on tab "Listings"');
+        try { localStorage.setItem('loqma.sheetUrl', url); } catch (e) {}
+        this.setState({ rows, sheetUrl: url, status: 'live', lastSync: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), sel: 0, err: '' });
+      })
+      .catch(e => this.setState({ status: 'error', err: String(e.message || e) }));
+  }
+
+  writeReservation() {
+    const bag = this.data()[this.state.sel];
+    const body = { code: 'L-4827', vendor: bag.vendor, title: bag.title, qty: this.state.qty, pay: this.state.pay, at: new Date().toISOString() };
+    if (!this.state.writeUrl) { this.setState({ writeNote: 'Queued locally — add an Apps Script URL to write back' }); return; }
+    this.setState({ writeNote: 'Writing to sheet…' });
+    fetch(this.state.writeUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(body) })
+      .then(() => this.setState({ writeNote: 'Row appended to Reservations' }))
+      .catch(e => this.setState({ writeNote: 'Write failed: ' + (e.message || e) }));
+  }
+
+  componentDidMount() {
+    this.t = setInterval(() => this.setState(s => ({ secs: s.secs > 0 ? s.secs - 1 : 0 })), 1000);
+    this.onMsg = (e) => {
+      const d = e.data || {};
+      if (d.type === 'loqma:select') this.setState({ sel: d.i, qty: 1 });
+    };
+    window.addEventListener('message', this.onMsg);
+    let saved = '';
+    try { saved = localStorage.getItem('loqma.sheetUrl') || ''; } catch (e) {}
+    if (saved) { this.setState({ urlDraft: saved }); this.loadSheet(saved); }
+  }
+  componentDidUpdate() {
+    if (this._lastSel === this.state.sel) return;
+    this._lastSel = this.state.sel;
+    const f = document.querySelector('iframe[data-big-map]');
+    if (f && f.contentWindow) f.contentWindow.postMessage({ type: 'loqma:focus', i: this.state.sel }, '*');
+  }
+  componentWillUnmount() { clearInterval(this.t); window.removeEventListener('message', this.onMsg); }
+
+  coords() {
+    const fb = [[33.88690, 35.51940], [33.88925, 35.52305], [33.89355, 35.51655], [33.88478, 35.51565]];
+    return this.data().map((b, i) => (b.lat && b.lng) ? [b.lat, b.lng] : fb[i % 4]);
+  }
+
+  go(screen) { return () => this.setState({ screen }); }
+
+  data() {
+    if (this.state.rows && this.state.rows.length) return this.state.rows;
+    return [
+      { vendor: 'Furn Al Sabaya', ar: 'كيس مناقيش مشكّل — زعتر، جبنة، لحم بعجين', dist: '400 m', title: 'Manouche mix bag', window: 'today 7:30–8:30 pm', left: '3 left', usd: '$3.50', was: '$11', lbp: '313,000 L.L', ph: '[ manouche tray ]', items: ['Zaatar manouche', 'Jebneh', 'Lahm baajine', 'Kaak'] },
+      { vendor: 'Abou Hassan Halawiyat', ar: 'صندوق حلويات المسا', dist: '650 m', title: 'Evening sweets box', window: 'today 8:00–9:00 pm', left: '2 left', usd: '$5.00', was: '$16', lbp: '447,500 L.L', ph: '[ knefeh & baklawa ]', items: ['Baklawa', 'Maamoul', 'Halawet el jibn', 'Ashta'] },
+      { vendor: 'Souk el Tayeb stall', ar: 'صندوق خضرة من المزرعة', dist: '1.1 km', title: 'Farm veg crate', window: 'tomorrow 9:00–10:30 am', left: '5 left', usd: '$4.00', was: '$13', lbp: '358,000 L.L', ph: '[ produce crate ]', items: ['Tomatoes', 'Cucumber', 'Herbs', 'Labneh jar'] },
+      { vendor: 'Kalei Coffee', ar: 'كيس معجنات ومخبوزات', dist: '900 m', title: 'Café pastry bag', window: 'today 6:45–7:15 pm', left: '1 left', usd: '$2.50', was: '$9', lbp: '223,750 L.L', ph: '[ pastry counter ]', items: ['Croissant', 'Banana bread', 'Cookie', 'Sfouf'] }
+    ];
+  }
+
+  money(n) {
+    return { usd: '$' + n.toFixed(2), lbp: Math.round(n * 89500).toLocaleString('en-US') + ' L.L' };
+  }
+
+  renderVals() {
+    const { screen, cat, sel, qty, pay, fav, secs, hood } = this.state;
+    const all = this.data();
+    const bags = cat === 'All' ? all : all.filter(b => b.title.toLowerCase().includes(cat.toLowerCase().slice(0, 4)) || b.vendor.toLowerCase().includes(cat.toLowerCase().slice(0, 4)));
+    const list = bags.length ? bags : all;
+    const bag = all[sel];
+    const unit = parseFloat(bag.usd.slice(1));
+    const tot = this.money(unit * qty);
+
+    const navDef = [
+      ['onboard', 'Onboarding', 'pick your area'],
+      ['home', 'Home / discover', 'closing soon'],
+      ['map', 'Map', 'pins & prices'],
+      ['bag', 'Bag detail', 'surprise contents'],
+      ['checkout', 'Checkout', 'USD + L.L'],
+      ['code', 'Pickup code', 'live countdown'],
+      ['impact', 'Impact & donate', 'profile']
+    ];
+    const nav = navDef.map(([id, label, hint]) => ({
+      label, hint, go: this.go(id),
+      style: 'display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:10px 13px;border-radius:11px;cursor:pointer;border:1px solid ' +
+        (screen === id ? 'transparent' : 'rgba(27,42,30,.12)') + ';background:' + (screen === id ? '#1B2A1E' : 'transparent') +
+        ';color:' + (screen === id ? '#FBFAF5' : '#1B2A1E')
+    }));
+
+    const hoods = ['Achrafieh', 'Hamra', 'Mar Mikhael', 'Badaro', 'Tripoli', 'Saida'].map(name => ({
+      name, pick: () => this.setState({ hood: name }),
+      style: 'padding:10px 14px;border-radius:11px;cursor:pointer;font:500 13px/1 "DM Sans",sans-serif;border:1px solid ' +
+        (hood === name ? '#F2C744' : 'rgba(251,250,245,.25)') + ';background:' + (hood === name ? 'rgba(242,199,68,.18)' : 'transparent') +
+        ';color:' + (hood === name ? '#F2C744' : 'rgba(251,250,245,.72)')
+    }));
+
+    const cats = ['All', 'Furn', 'Sweets', 'Grocery', 'Café'].map(label => ({
+      label, pick: () => this.setState({ cat: label }),
+      style: 'padding:9px 14px;border-radius:99px;cursor:pointer;font:500 12.5px/1 "DM Sans",sans-serif;border:1px solid ' +
+        (cat === label ? 'transparent' : 'rgba(27,42,30,.14)') + ';background:' + (cat === label ? '#5C7A3F' : 'transparent') +
+        ';color:' + (cat === label ? '#fff' : '#47513F')
+    }));
+
+    const pinPos = [[64, 300], [210, 226], [140, 470], [268, 386]];
+    const pins = all.map((b, i) => ({
+      usd: b.usd, open: () => this.setState({ screen: 'bag', sel: i, qty: 1 }),
+      style: 'position:absolute;left:' + pinPos[i][0] + 'px;top:' + pinPos[i][1] + 'px;padding:8px 12px;border-radius:99px 99px 99px 4px;cursor:pointer;font:700 12.5px/1 "DM Sans",sans-serif;box-shadow:0 6px 14px rgba(27,42,30,.22);background:' +
+        (sel === i ? '#1B2A1E' : '#5C7A3F') + ';color:' + (sel === i ? '#F2C744' : '#fff')
+    }));
+
+    const pays = [
+      ['cash', 'Cash at pickup', 'Fresh dollars or lira — no fee'],
+      ['omt', 'OMT / Whish wallet', 'Pay now, show the code'],
+      ['card', 'Card', 'Visa · Mastercard · 3% bank fee']
+    ].map(([id, label, note]) => ({
+      label, note, pick: () => this.setState({ pay: id }),
+      style: 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px;border-radius:16px;cursor:pointer;background:#fff;border:1.5px solid ' + (pay === id ? '#5C7A3F' : 'rgba(27,42,30,.09)'),
+      dot: 'width:20px;height:20px;flex:none;border-radius:50%;border:6px solid ' + (pay === id ? '#5C7A3F' : 'rgba(27,42,30,.14)') + ';background:#fff'
+    }));
+
+    const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60), s2 = secs % 60;
+    const pad = n => String(n).padStart(2, '0');
+    const clock = h > 0 ? h + ':' + pad(m) + ':' + pad(s2) : m + ':' + pad(s2);
+    const codeBars = [3, 6, 2, 8, 3, 5, 2, 7, 4, 3, 6, 2].map(w =>
+      'width:' + w + 'px;height:34px;border-radius:1px;background:#1B2A1E');
+
+    return {
+      nav, hoods, cats, pins, pays, bags: list, sel: bag, qty, hood,
+      showArabic: (this.props.showArabic ?? true) && this.state.ar !== false,
+      setEn: () => this.setState({ ar: false }),
+      setAr: () => this.setState({ ar: true }),
+      enStyle: 'padding:6px 11px;border-radius:99px;cursor:pointer;font:500 11.5px/1 "DM Sans",sans-serif;background:' + (this.state.ar === false ? '#1B2A1E' : 'transparent') + ';color:' + (this.state.ar === false ? '#FBFAF5' : '#5A6352'),
+      arStyle: 'padding:6px 11px;border-radius:99px;cursor:pointer;font:500 12.5px/1 "Noto Kufi Arabic",sans-serif;background:' + (this.state.ar !== false ? '#1B2A1E' : 'transparent') + ';color:' + (this.state.ar !== false ? '#FBFAF5' : '#5A6352'),
+      showBanner: this.props.showImpactBanner ?? true,
+      isOnboard: screen === 'onboard', isHome: screen === 'home', isMap: screen === 'map',
+      isBag: screen === 'bag', isCheckout: screen === 'checkout', isCode: screen === 'code', isImpact: screen === 'impact',
+      showTabs: screen === 'home' || screen === 'map' || screen === 'impact',
+      bagCount: list.length + ' nearby',
+      totUsd: tot.usd, totLbp: tot.lbp,
+      code: 'L-4827', codeBars,
+      countdown: clock,
+      goHome: this.go('home'), goBag: this.go('bag'), goCheckout: this.go('checkout'),
+      goCode: () => { this.writeReservation(); this.setState({ screen: 'code' }); },
+      goImpact: this.go('impact'),
+      openFirst: () => this.setState({ screen: 'bag', sel: 0, qty: 1 }),
+      miniSrc: 'map-view.html?mini=1&sel=' + sel + (this.state.status === 'live' ? '&csv=' + encodeURIComponent(this.csvUrl(this.state.sheetUrl)) : ''),
+      mapSrc: 'map-view.html' + (this.state.status === 'live' ? '?csv=' + encodeURIComponent(this.csvUrl(this.state.sheetUrl)) : ''),
+      isLive: this.state.status === 'live',
+      sheetLabel: { demo: 'Demo data', loading: 'Syncing…', live: 'Live from Sheets', error: 'Connection failed' }[this.state.status],
+      sheetPill: 'display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;font:500 10.5px/1 "DM Mono",monospace;background:' +
+        ({ demo: '#F1F3E9', loading: '#F1F3E9', live: 'rgba(92,122,63,.14)', error: 'rgba(176,58,46,.12)' }[this.state.status]) +
+        ';color:' + ({ demo: '#5A6352', loading: '#5A6352', live: '#3F5A28', error: '#8E2F26' }[this.state.status]),
+      sheetMeta: this.state.status === 'live' ? this.data().length + ' listings · synced ' + this.state.lastSync : (this.state.err || 'Paste a published Google Sheet link'),
+      urlDraft: this.state.urlDraft, writeUrl: this.state.writeUrl, writeNote: this.state.writeNote,
+      onUrl: (e) => this.setState({ urlDraft: e.target.value }),
+      onWriteUrl: (e) => this.setState({ writeUrl: e.target.value }),
+      connect: () => this.loadSheet(this.state.urlDraft),
+      refresh: () => this.loadSheet(this.state.sheetUrl || this.state.urlDraft),
+      useDemo: () => { try { localStorage.removeItem('loqma.sheetUrl'); } catch (e) {} this.setState({ rows: null, status: 'demo', sheetUrl: '', sel: 0, err: '' }); },
+      directions: 'https://www.google.com/maps/dir/?api=1&destination=' + this.coords()[sel].join(',') + '&travelmode=walking',
+      inc: () => this.setState(st => ({ qty: Math.min(st.qty + 1, 3) })),
+      dec: () => this.setState(st => ({ qty: Math.max(st.qty - 1, 1) })),
+      toggleFav: () => this.setState(st => ({ fav: !st.fav })),
+      favStyle: 'position:absolute;top:62px;right:16px;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font:400 16px/1 "DM Sans",sans-serif;background:rgba(251,250,245,.92);color:' + (fav ? '#5C7A3F' : '#6F7A68'),
+      stats: [{ v: '31', l: 'loqmas rescued' }, { v: '$214', l: 'saved vs. shelf price' }, { v: '46 kg', l: 'food kept from the bin' }, { v: '4', l: 'shops supported' }],
+      past: [{ t: 'Manouche mix bag', d: 'Furn Al Sabaya · 3 Sep', p: '$3.50' }, { t: 'Evening sweets box', d: 'Abou Hassan · 29 Aug', p: '$5.00' }, { t: 'Café pastry bag', d: 'Kalei Coffee · 24 Aug', p: '$2.50' }],
+      tabs: [['home', 'Home'], ['map', 'Map'], ['code', 'Orders'], ['impact', 'Me']].map(([id, name]) => ({
+        name, go: this.go(id),
+        dot: 'width:6px;height:6px;border-radius:50%;background:' + (screen === id ? '#5C7A3F' : 'transparent'),
+        label: 'font:500 11.5px/1 "DM Sans",sans-serif;color:' + (screen === id ? '#1B2A1E' : '#6F7A68')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
